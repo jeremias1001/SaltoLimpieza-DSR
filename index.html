@@ -4,34 +4,43 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SaltoLimpieza · Sales Room</title>
-  <meta name="description" content="Sales room premium para presentar el e-commerce de SaltoLimpieza." />
+  <meta name="description" content="Sales room interactivo: así administrarás tu e-commerce, así comprarán tus clientes y hasta dónde puede crecer." />
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config={theme:{extend:{colors:{brand:{green:'#66B132',blue:'#0E54B7',navy:'#0E2E73',yellow:'#FFD62E'}},fontFamily:{heading:['Plus Jakarta Sans','sans-serif'],body:['Manrope','sans-serif']},boxShadow:{soft:'0 12px 35px rgba(15,23,42,.10)',glow:'0 20px 55px rgba(14,46,115,.14)'}}}};
   </script>
   <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
-  <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
+  <script defer src="app.js"></script>
+  <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
   <style>[x-cloak]{display:none!important}html{scroll-behavior:smooth}.glass{backdrop-filter:blur(18px)}</style>
 </head>
 <body class="bg-slate-50 font-body text-slate-800" x-data="app()">
   <div class="min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(255,214,46,.18),transparent_24%),radial-gradient(circle_at_bottom_right,rgba(102,177,50,.16),transparent_30%),linear-gradient(to_bottom,#f8fbff,#f4f8fc)]">
     <div class="flex min-h-screen">
-      <aside :class="open ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'" class="fixed z-40 h-screen w-[285px] shrink-0 border-r border-slate-200 bg-white/80 p-5 glass transition lg:sticky lg:top-0">
+
+      <aside :class="open ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'" class="fixed z-40 h-screen w-[285px] shrink-0 overflow-y-auto border-r border-slate-200 bg-white/80 p-5 glass transition lg:sticky lg:top-0">
         <div class="rounded-3xl border border-slate-200 bg-white p-4 shadow-soft">
           <img src="logo.svg" alt="SaltoLimpieza" class="w-52 max-w-full" />
-          <div class="mt-4 inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1.5 text-[11px] font-extrabold uppercase tracking-[.18em] text-emerald-700"><span class="h-2 w-2 rounded-full bg-emerald-500"></span>Sales Room Premium</div>
+          <div class="mt-4 inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1.5 text-[11px] font-extrabold uppercase tracking-[.18em] text-emerald-700"><span class="h-2 w-2 rounded-full bg-emerald-500"></span>Sales Room</div>
         </div>
-        <div class="mt-6 space-y-2">
-          <template x-for="item in nav" :key="item.id">
-            <button @click="section=item.id; open=false; requestAnimationFrame(()=>lucide.createIcons())" class="flex w-full items-center gap-3 rounded-2xl border px-4 py-3 text-left transition" :class="section===item.id ? 'border-emerald-200 bg-gradient-to-r from-emerald-50 to-blue-50 text-brand-navy' : 'border-transparent bg-transparent text-slate-500 hover:border-slate-200 hover:bg-slate-50'">
-              <span class="grid h-10 w-10 place-items-center rounded-xl bg-white shadow-sm"><i :data-lucide="item.icon" class="h-5 w-5"></i></span>
-              <span><span class="block text-sm font-bold" x-text="item.name"></span><span class="block text-xs text-slate-400" x-text="item.sub"></span></span>
-            </button>
-          </template>
-        </div>
+
+        <template x-for="grp in navGroups" :key="grp.group">
+          <div class="mt-6">
+            <p class="px-2 text-[11px] font-extrabold uppercase tracking-[.18em] text-slate-400" x-text="grp.group"></p>
+            <div class="mt-2 space-y-1.5">
+              <template x-for="item in grp.items" :key="item.id">
+                <button @click="go(item.id)" class="flex w-full items-center gap-3 rounded-2xl border px-3.5 py-2.5 text-left transition" :class="section===item.id ? 'border-emerald-200 bg-gradient-to-r from-emerald-50 to-blue-50 text-brand-navy' : 'border-transparent bg-transparent text-slate-500 hover:border-slate-200 hover:bg-slate-50'">
+                  <span class="grid h-9 w-9 place-items-center rounded-xl bg-white shadow-sm"><i :data-lucide="item.icon" class="h-4 w-4"></i></span>
+                  <span><span class="block text-sm font-bold" x-text="item.name"></span><span class="block text-xs text-slate-400" x-text="item.sub"></span></span>
+                </button>
+              </template>
+            </div>
+          </div>
+        </template>
+
         <div class="mt-6 rounded-3xl bg-slate-950 p-5 text-white shadow-glow">
           <p class="text-xs uppercase tracking-[.18em] text-slate-400">Propuesta</p>
           <div class="mt-4 grid gap-3 text-sm">
@@ -46,70 +55,541 @@
       <main class="min-w-0 flex-1">
         <header class="sticky top-0 z-20 border-b border-slate-200 bg-white/70 px-4 py-4 glass md:px-8">
           <div class="mx-auto flex max-w-7xl items-center justify-between">
-            <div class="flex items-center gap-3"><button @click="open=true" class="grid h-11 w-11 place-items-center rounded-2xl border border-slate-200 bg-white lg:hidden"><i data-lucide="menu" class="h-5 w-5"></i></button><div><p class="text-xs uppercase tracking-[.18em] text-slate-400">Demo comercial</p><h1 class="font-heading text-xl font-extrabold text-slate-950 md:text-2xl" x-text="title"></h1></div></div>
-            <div class="hidden rounded-full bg-emerald-50 px-4 py-2 text-xs font-bold text-emerald-700 md:block">Tailwind + Alpine + Chart.js + Lucide</div>
+            <div class="flex items-center gap-3">
+              <button @click="open=true" class="grid h-11 w-11 place-items-center rounded-2xl border border-slate-200 bg-white lg:hidden"><i data-lucide="menu" class="h-5 w-5"></i></button>
+              <div>
+                <p class="text-xs uppercase tracking-[.18em] text-slate-400" x-text="worldLabel"></p>
+                <h1 class="font-heading text-xl font-extrabold text-slate-950 md:text-2xl" x-text="title"></h1>
+              </div>
+            </div>
+            <div class="flex items-center gap-3">
+              <div class="hidden rounded-full bg-emerald-50 px-4 py-2 text-xs font-bold text-emerald-700 md:block">Demo interactiva · Datos demostrativos</div>
+              <button @click="cartOpen=true" class="relative grid h-11 w-11 place-items-center rounded-2xl border border-slate-200 bg-white">
+                <i data-lucide="shopping-cart" class="h-5 w-5"></i>
+                <span x-show="cartCount>0" x-cloak x-text="cartCount" class="absolute -right-1.5 -top-1.5 grid h-5 min-w-[20px] place-items-center rounded-full bg-brand-yellow px-1 text-[11px] font-extrabold text-slate-950"></span>
+              </button>
+            </div>
           </div>
         </header>
 
+        <div x-show="isStore" x-cloak class="border-b border-slate-200 bg-white px-4 py-3 md:px-8">
+          <div class="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center gap-2 text-sm font-bold text-slate-600">
+              <span class="font-heading text-brand-navy">SaltoLimpieza</span>
+              <span class="text-slate-300">·</span>
+              <button @click="go('store-home')" class="hover:text-brand-blue">Inicio</button>
+              <button @click="go('store-catalog')" class="hover:text-brand-blue">Catálogo</button>
+              <button @click="go('store-product')" class="hover:text-brand-blue">Producto</button>
+            </div>
+            <div class="flex items-center gap-2">
+              <div class="hidden items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-4 py-2 text-sm text-slate-400 sm:flex"><i data-lucide="search" class="h-4 w-4"></i>Buscar productos…</div>
+              <button @click="go('store-cart')" class="rounded-full bg-brand-navy px-4 py-2 text-xs font-extrabold text-white">Ir al carrito</button>
+            </div>
+          </div>
+        </div>
+
         <div class="mx-auto max-w-7xl px-4 py-6 md:px-8 md:py-8">
-          <section class="overflow-hidden rounded-[32px] bg-[linear-gradient(135deg,#0E2E73_0%,#0E54B7_62%,#66B132_100%)] p-6 text-white shadow-glow md:p-10">
-            <div class="grid gap-8 xl:grid-cols-[1.15fr_.85fr] xl:items-center">
-              <div>
-                <div class="mb-4 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-2 text-xs font-extrabold uppercase tracking-[.18em]"><span class="h-2 w-2 rounded-full bg-brand-yellow"></span>E-commerce escalable</div>
-                <h2 class="max-w-4xl font-heading text-4xl font-extrabold leading-tight md:text-6xl">Un sales room mucho más premium para vender la idea del e-commerce.</h2>
-                <p class="mt-5 max-w-3xl text-base leading-8 text-white/85 md:text-lg">Esta versión mejora la anterior con mejores tipografías, componentes más limpios, navegación más clara y librerías modernas para darle presencia real al proyecto.</p>
-                <div class="mt-8 flex flex-wrap gap-3"><button @click="section='overview'" class="rounded-2xl bg-brand-yellow px-5 py-3 text-sm font-extrabold text-slate-950">Ver visión general</button><button @click="section='operations'" class="rounded-2xl border border-white/15 bg-white/10 px-5 py-3 text-sm font-extrabold">Explorar operación</button></div>
+
+          <section x-show="section==='overview'" x-cloak>
+            <div class="overflow-hidden rounded-[32px] bg-[linear-gradient(135deg,#0E2E73_0%,#0E54B7_62%,#66B132_100%)] p-6 text-white shadow-glow md:p-10">
+              <div class="mb-4 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-2 text-xs font-extrabold uppercase tracking-[.18em]"><span class="h-2 w-2 rounded-full bg-brand-yellow"></span>Tu nuevo canal de ventas</div>
+              <h2 class="max-w-4xl font-heading text-4xl font-extrabold leading-tight md:text-6xl">Tu nuevo canal de ventas, administración y crecimiento.</h2>
+              <p class="mt-5 max-w-3xl text-base leading-8 text-white/85 md:text-lg">SaltoLimpieza tendrá una plataforma donde tus clientes podrán comprar online mientras tú administras productos, inventario, pedidos, clientes, promociones y despachos desde un solo lugar.</p>
+              <div class="mt-8 flex flex-wrap gap-3">
+                <button @click="go('admin-dashboard')" class="rounded-2xl bg-brand-yellow px-5 py-3 text-sm font-extrabold text-slate-950">Explorar mi e-commerce</button>
+                <button @click="go('growth-integrations')" class="rounded-2xl border border-white/15 bg-white/10 px-5 py-3 text-sm font-extrabold">Ver todo lo incluido</button>
               </div>
-              <div class="grid gap-4">
-                <div class="rounded-[28px] border border-white/15 bg-white/10 p-5 glass">
-                  <p class="text-xs uppercase tracking-[.18em] text-white/70">Lo que comunica</p>
-                  <div class="mt-4 grid grid-cols-2 gap-3 text-sm font-bold">
-                    <div class="rounded-2xl bg-white/10 p-4">Checkout claro</div>
-                    <div class="rounded-2xl bg-white/10 p-4">Panel administrador</div>
-                    <div class="rounded-2xl bg-white/10 p-4">Promociones flexibles</div>
-                    <div class="rounded-2xl bg-white/10 p-4">Escalabilidad real</div>
-                  </div>
-                </div>
-                <div class="rounded-[28px] border border-white/15 bg-white/10 p-5 glass">
-                  <p class="text-xs uppercase tracking-[.18em] text-white/70">Librerías usadas</p>
-                  <div class="mt-4 flex flex-wrap gap-2 text-xs font-bold"><span class="rounded-full bg-white/10 px-3 py-2">TailwindCSS</span><span class="rounded-full bg-white/10 px-3 py-2">Alpine.js</span><span class="rounded-full bg-white/10 px-3 py-2">Chart.js</span><span class="rounded-full bg-white/10 px-3 py-2">Lucide Icons</span></div>
+            </div>
+
+            <div class="mt-6 grid gap-4 lg:grid-cols-3">
+              <button @click="go('admin-dashboard')" class="rounded-[28px] border border-slate-200 bg-white p-6 text-left shadow-soft transition hover:-translate-y-0.5 hover:shadow-glow">
+                <div class="grid h-12 w-12 place-items-center rounded-2xl bg-blue-50 text-brand-blue"><i data-lucide="layout-dashboard" class="h-6 w-6"></i></div>
+                <h3 class="mt-4 font-heading text-xl font-extrabold text-slate-950">Administración</h3>
+                <p class="mt-2 text-sm leading-7 text-slate-500">Así manejarás tu negocio: productos, stock, pedidos, clientes y promociones.</p>
+                <p class="mt-4 text-xs font-bold text-brand-blue">Productos · Stock · Pedidos · Clientes →</p>
+              </button>
+              <button @click="go('store-home')" class="rounded-[28px] border border-slate-200 bg-white p-6 text-left shadow-soft transition hover:-translate-y-0.5 hover:shadow-glow">
+                <div class="grid h-12 w-12 place-items-center rounded-2xl bg-emerald-50 text-emerald-700"><i data-lucide="shopping-bag" class="h-6 w-6"></i></div>
+                <h3 class="mt-4 font-heading text-xl font-extrabold text-slate-950">Tienda online</h3>
+                <p class="mt-2 text-sm leading-7 text-slate-500">Así comprarán tus clientes: catálogo, carrito, checkout y mi cuenta.</p>
+                <p class="mt-4 text-xs font-bold text-emerald-700">Catálogo · Carrito · Checkout →</p>
+              </button>
+              <button @click="go('growth-integrations')" class="rounded-[28px] border border-slate-200 bg-white p-6 text-left shadow-soft transition hover:-translate-y-0.5 hover:shadow-glow">
+                <div class="grid h-12 w-12 place-items-center rounded-2xl bg-violet-50 text-violet-700"><i data-lucide="plug-zap" class="h-6 w-6"></i></div>
+                <h3 class="mt-4 font-heading text-xl font-extrabold text-slate-950">Integraciones</h3>
+                <p class="mt-2 text-sm leading-7 text-slate-500">Esto podremos conectar cuando tu negocio lo necesite.</p>
+                <p class="mt-4 text-xs font-bold text-violet-700">Pagos · Despachos · WhatsApp · CRM →</p>
+              </button>
+            </div>
+          </section>
+
+          <section x-show="section==='admin-dashboard'" x-cloak class="space-y-6">
+            <div class="flex items-center justify-between">
+              <h3 class="font-heading text-2xl font-extrabold text-slate-950">Cómo va tu negocio</h3>
+              <span class="rounded-full bg-slate-100 px-3 py-1 text-[11px] font-extrabold uppercase tracking-[.14em] text-slate-500">Datos demostrativos</span>
+            </div>
+            <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+              <template x-for="m in metrics" :key="m.label">
+                <div class="rounded-[28px] border border-white/70 bg-white/90 p-5 shadow-soft"><div class="flex items-start justify-between"><div><p class="text-sm font-bold text-slate-500" x-text="m.label"></p><p class="mt-2 text-3xl font-extrabold text-slate-950" x-text="m.value"></p><p class="mt-1 text-sm text-slate-500" x-text="m.note"></p></div><div class="grid h-12 w-12 place-items-center rounded-2xl" :class="m.color"><i :data-lucide="m.icon" class="h-5 w-5"></i></div></div></div>
+              </template>
+            </div>
+            <div class="grid gap-6 xl:grid-cols-[1.15fr_.85fr]">
+              <div class="rounded-[30px] bg-white p-6 shadow-soft md:p-8">
+                <p class="text-xs uppercase tracking-[.18em] text-brand-green">Ventas</p>
+                <h3 class="mt-2 font-heading text-2xl font-extrabold text-slate-950">Evolución de pedidos.</h3>
+                <div class="mt-6 rounded-[26px] bg-slate-50 p-4"><canvas id="salesChart" height="220"></canvas></div>
+              </div>
+              <div class="rounded-[30px] bg-white p-6 shadow-soft md:p-8">
+                <p class="text-xs uppercase tracking-[.18em] text-brand-blue">Productos</p>
+                <h3 class="mt-2 font-heading text-2xl font-extrabold text-slate-950">Más vendidos.</h3>
+                <div class="mt-6 space-y-3">
+                  <template x-for="b in bestSellers" :key="b.name">
+                    <div class="flex items-center justify-between rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3"><p class="text-sm font-bold text-slate-800" x-text="b.name"></p><div class="text-right"><p class="text-sm font-extrabold text-slate-950" x-text="b.revenue"></p><p class="text-xs text-slate-400" x-text="b.sold"></p></div></div>
+                  </template>
                 </div>
               </div>
             </div>
           </section>
 
-          <section class="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-            <template x-for="m in metrics" :key="m.label">
-              <div class="rounded-[28px] border border-white/70 bg-white/90 p-5 shadow-soft"><div class="flex items-start justify-between"><div><p class="text-sm font-bold text-slate-500" x-text="m.label"></p><p class="mt-2 text-3xl font-extrabold text-slate-950" x-text="m.value"></p><p class="mt-1 text-sm text-slate-500" x-text="m.note"></p></div><div class="grid h-12 w-12 place-items-center rounded-2xl" :class="m.color"><i :data-lucide="m.icon" class="h-5 w-5"></i></div></div></div>
+          <section x-show="section==='admin-products'" x-cloak class="rounded-[30px] bg-white p-6 shadow-soft md:p-8">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+              <div><p class="text-xs uppercase tracking-[.18em] text-brand-blue">Productos</p><h3 class="mt-2 font-heading text-3xl font-extrabold text-slate-950">Tu catálogo.</h3></div>
+              <button @click="openProductModal()" class="rounded-2xl bg-brand-navy px-5 py-3 text-sm font-extrabold text-white">+ Crear producto</button>
+            </div>
+            <div class="mt-6 overflow-x-auto rounded-[26px] border border-slate-200">
+              <div class="min-w-[720px]">
+                <div class="grid grid-cols-12 bg-slate-50 px-5 py-4 text-xs font-extrabold uppercase tracking-[.16em] text-slate-400"><div class="col-span-5">Producto</div><div class="col-span-2">Precio</div><div class="col-span-2">Stock</div><div class="col-span-3">Estado</div></div>
+                <template x-for="p in products" :key="p.sku">
+                  <div class="grid grid-cols-12 items-center border-t border-slate-100 px-5 py-4 text-sm">
+                    <div class="col-span-5 flex items-center gap-4">
+                      <div class="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-emerald-50 to-blue-50 font-extrabold text-brand-navy" x-text="p.name.charAt(0)"></div>
+                      <div><p class="font-bold text-slate-950" x-text="p.name"></p><p class="text-xs text-slate-400" x-text="'SKU ' + p.sku + ' · ' + p.category"></p><p class="text-xs font-semibold text-brand-blue" x-show="p.variants" x-text="p.variants"></p></div>
+                    </div>
+                    <div class="col-span-2 font-bold text-slate-700" x-text="formatCLP(p.price)"></div>
+                    <div class="col-span-2 text-slate-600" x-text="p.stock + ' u.'"></div>
+                    <div class="col-span-3"><span class="inline-flex rounded-full px-3 py-1 text-xs font-extrabold" :class="p.statusClass" x-text="p.status"></span></div>
+                  </div>
+                </template>
+              </div>
+            </div>
+          </section>
+
+          <template x-if="showProductModal">
+            <div @click.self="closeProductModal()" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 p-4">
+              <div class="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-[30px] bg-white p-6 shadow-glow md:p-8">
+                <div class="flex items-center justify-between"><h3 class="font-heading text-2xl font-extrabold text-slate-950">Crear producto</h3><button @click="closeProductModal()" class="grid h-9 w-9 place-items-center rounded-full bg-slate-100"><i data-lucide="x" class="h-4 w-4"></i></button></div>
+                <p class="mt-1 text-sm text-slate-400">Formulario de demostración · no guarda datos reales.</p>
+                <form @submit.prevent="submitProduct()" class="mt-6 grid gap-4 sm:grid-cols-2">
+                  <label class="sm:col-span-2 text-xs font-bold text-slate-500">Nombre<input x-model="newProduct.name" type="text" class="mt-1 w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm" placeholder="Ej: Limpiador Multiuso" /></label>
+                  <label class="sm:col-span-2 text-xs font-bold text-slate-500">Descripción<textarea x-model="newProduct.description" rows="3" class="mt-1 w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm" placeholder="Descripción del producto"></textarea></label>
+                  <label class="text-xs font-bold text-slate-500">Precio<input x-model="newProduct.price" type="number" class="mt-1 w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm" placeholder="6990" /></label>
+                  <label class="text-xs font-bold text-slate-500">Precio oferta<input x-model="newProduct.compareAtPrice" type="number" class="mt-1 w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm" placeholder="Opcional" /></label>
+                  <label class="text-xs font-bold text-slate-500">SKU<input x-model="newProduct.sku" type="text" class="mt-1 w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm" placeholder="SL005" /></label>
+                  <label class="text-xs font-bold text-slate-500">Categoría
+                    <select x-model="newProduct.category" class="mt-1 w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm">
+                      <template x-for="c in categories" :key="c.name"><option x-text="c.name"></option></template>
+                    </select>
+                  </label>
+                  <label class="text-xs font-bold text-slate-500">Stock<input x-model="newProduct.stock" type="number" class="mt-1 w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm" placeholder="50" /></label>
+                  <label class="text-xs font-bold text-slate-500">Estado
+                    <select x-model="newProduct.status" class="mt-1 w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm"><option>Publicado</option><option>Borrador</option><option>Oferta</option></select>
+                  </label>
+                  <div class="sm:col-span-2 mt-2 flex justify-end gap-3">
+                    <button type="button" @click="closeProductModal()" class="rounded-2xl border border-slate-200 px-5 py-3 text-sm font-extrabold text-slate-600">Cancelar</button>
+                    <button type="submit" class="rounded-2xl bg-brand-navy px-5 py-3 text-sm font-extrabold text-white">Guardar producto</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </template>
+
+          <section x-show="section==='admin-orders'" x-cloak>
+            <template x-if="!selectedOrder">
+              <div class="rounded-[30px] bg-white p-6 shadow-soft md:p-8">
+                <p class="text-xs uppercase tracking-[.18em] text-brand-blue">Pedidos</p>
+                <h3 class="mt-2 font-heading text-3xl font-extrabold text-slate-950">Trazabilidad clara.</h3>
+                <div class="mt-6 flex flex-wrap items-center gap-2 text-[11px] font-bold text-slate-500">
+                  <template x-for="(s,i) in orderStatuses" :key="s"><span class="flex items-center gap-2"><span class="rounded-full bg-slate-100 px-3 py-1" x-text="s"></span><i x-show="i<orderStatuses.length-1" data-lucide="arrow-right" class="h-3 w-3 text-slate-300"></i></span></template>
+                  <span class="ml-2 rounded-full bg-rose-50 px-3 py-1 text-rose-600">Cancelado</span>
+                  <span class="rounded-full bg-rose-50 px-3 py-1 text-rose-600">Reembolsado</span>
+                  <span class="rounded-full bg-rose-50 px-3 py-1 text-rose-600">Devuelto</span>
+                </div>
+                <div class="mt-6 space-y-3">
+                  <template x-for="o in orders" :key="o.id">
+                    <button @click="openOrder(o)" class="w-full rounded-[24px] border border-slate-200 bg-slate-50 p-4 text-left transition hover:border-brand-blue/40">
+                      <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                        <div><p class="font-bold text-slate-950"><span x-text="o.id"></span> · <span x-text="o.customer"></span></p><p class="mt-1 text-sm text-slate-500" x-text="o.items.length + ' producto(s) · total ' + formatCLP(o.total) + ' · ' + o.time"></p></div>
+                        <div class="flex flex-wrap items-center gap-2"><span class="rounded-full bg-white px-3 py-1 text-xs font-bold text-slate-600" x-text="o.paid"></span><span class="rounded-full px-3 py-1 text-xs font-extrabold" :class="o.badgeClass" x-text="o.fulfillment"></span></div>
+                      </div>
+                    </button>
+                  </template>
+                </div>
+              </div>
+            </template>
+
+            <template x-if="selectedOrder">
+              <div class="rounded-[30px] bg-white p-6 shadow-soft md:p-8">
+                <button @click="closeOrder()" class="flex items-center gap-2 text-sm font-bold text-slate-500"><i data-lucide="arrow-left" class="h-4 w-4"></i>Volver a pedidos</button>
+                <h3 class="mt-4 font-heading text-3xl font-extrabold text-slate-950" x-text="'Pedido ' + selectedOrder.id"></h3>
+                <div class="mt-6 grid gap-6 lg:grid-cols-[1fr_.8fr]">
+                  <div class="space-y-6">
+                    <div><p class="text-xs font-extrabold uppercase tracking-[.16em] text-slate-400">Cliente</p><p class="mt-1 font-bold text-slate-900" x-text="selectedOrder.customer"></p></div>
+                    <div>
+                      <p class="text-xs font-extrabold uppercase tracking-[.16em] text-slate-400">Productos</p>
+                      <div class="mt-2 space-y-2">
+                        <template x-for="it in selectedOrder.items" :key="it.name"><div class="flex items-center justify-between rounded-2xl bg-slate-50 px-4 py-3 text-sm"><span x-text="it.qty + ' × ' + it.name"></span><span class="font-bold" x-text="formatCLP(it.qty*it.price)"></span></div></template>
+                      </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                      <div><p class="text-xs font-extrabold uppercase tracking-[.16em] text-slate-400">Pago</p><p class="mt-1 font-bold text-slate-900" x-text="selectedOrder.paid"></p></div>
+                      <div><p class="text-xs font-extrabold uppercase tracking-[.16em] text-slate-400">Preparación y despacho</p><p class="mt-1 font-bold text-slate-900" x-text="selectedOrder.fulfillment"></p></div>
+                    </div>
+                    <div><p class="text-xs font-extrabold uppercase tracking-[.16em] text-slate-400">Dirección</p><p class="mt-1 font-bold text-slate-900" x-text="selectedOrder.address"></p></div>
+                  </div>
+                  <div class="rounded-[26px] bg-slate-50 p-5">
+                    <p class="text-xs font-extrabold uppercase tracking-[.16em] text-slate-400">Timeline</p>
+                    <div class="mt-4 space-y-4">
+                      <template x-for="t in selectedOrder.timeline" :key="t.label">
+                        <div class="flex gap-3"><span class="mt-1 h-2.5 w-2.5 shrink-0 rounded-full bg-brand-green"></span><div><p class="text-sm font-bold text-slate-900" x-text="t.label"></p><p class="text-xs text-slate-400" x-text="t.time"></p></div></div>
+                      </template>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </template>
           </section>
 
-          <section class="mt-8 space-y-6">
-            <div x-show="section==='overview'" x-cloak class="grid gap-6 xl:grid-cols-[1.15fr_.85fr]">
-              <div class="rounded-[30px] bg-white p-6 shadow-soft md:p-8"><p class="text-xs uppercase tracking-[.18em] text-brand-blue">Visión general</p><h3 class="mt-2 font-heading text-3xl font-extrabold text-slate-950">Qué podrá administrar SaltoLimpieza.</h3><div class="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3"><template x-for="f in features" :key="f.title"><div class="rounded-[24px] border border-slate-200 bg-slate-50 p-5"><div class="flex items-center gap-3"><div class="grid h-11 w-11 place-items-center rounded-2xl bg-white text-brand-blue shadow-sm"><i :data-lucide="f.icon" class="h-5 w-5"></i></div><p class="font-heading text-lg font-extrabold text-slate-950" x-text="f.title"></p></div><p class="mt-4 text-sm leading-7 text-slate-500" x-text="f.text"></p></div></template></div></div>
-              <div class="rounded-[30px] bg-white p-6 shadow-soft md:p-8"><p class="text-xs uppercase tracking-[.18em] text-brand-green">Demo analítica</p><h3 class="mt-2 font-heading text-2xl font-extrabold text-slate-950">Visualmente más convincente.</h3><div class="mt-6 rounded-[26px] bg-slate-50 p-4"><canvas id="salesChart" height="220"></canvas></div><div class="mt-5 grid grid-cols-3 gap-3 text-sm"><div class="rounded-2xl bg-slate-50 p-4"><p class="text-slate-400">Ticket promedio</p><p class="mt-1 font-extrabold text-slate-950">$18.450</p></div><div class="rounded-2xl bg-slate-50 p-4"><p class="text-slate-400">Conversión demo</p><p class="mt-1 font-extrabold text-slate-950">3,8%</p></div><div class="rounded-2xl bg-slate-50 p-4"><p class="text-slate-400">Pedidos mes</p><p class="mt-1 font-extrabold text-slate-950">124</p></div></div></div>
+          <section x-show="section==='admin-customers'" x-cloak class="rounded-[30px] bg-white p-6 shadow-soft md:p-8">
+            <p class="text-xs uppercase tracking-[.18em] text-brand-blue">Clientes</p>
+            <h3 class="mt-2 font-heading text-3xl font-extrabold text-slate-950">Historial y segmentos.</h3>
+            <div class="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+              <template x-for="c in customers" :key="c.name">
+                <div class="rounded-[24px] border border-slate-200 bg-slate-50 p-5">
+                  <div class="flex items-center gap-4"><div class="grid h-12 w-12 place-items-center rounded-2xl bg-white font-extrabold text-brand-navy shadow-sm" x-text="c.initials"></div><div><p class="font-heading text-lg font-extrabold text-slate-950" x-text="c.name"></p><p class="text-sm text-slate-400" x-text="c.type"></p></div></div>
+                  <span class="mt-4 inline-flex rounded-full px-3 py-1 text-xs font-extrabold" :class="c.badgeClass" x-text="c.segment"></span>
+                  <div class="mt-5 grid grid-cols-2 gap-3">
+                    <div class="rounded-2xl bg-white p-4"><p class="text-xs text-slate-400">Pedidos</p><p class="mt-1 font-extrabold text-slate-950" x-text="c.orders"></p></div>
+                    <div class="rounded-2xl bg-white p-4"><p class="text-xs text-slate-400">Total comprado</p><p class="mt-1 font-extrabold text-slate-950" x-text="formatCLP(c.total)"></p></div>
+                  </div>
+                  <div class="mt-4 space-y-1.5">
+                    <template x-for="h in c.history" :key="h.id"><div class="flex justify-between text-xs text-slate-500"><span x-text="h.id"></span><span x-text="formatCLP(h.total)"></span></div></template>
+                  </div>
+                </div>
+              </template>
             </div>
-
-            <div x-show="section==='catalog'" x-cloak class="rounded-[30px] bg-white p-6 shadow-soft md:p-8"><p class="text-xs uppercase tracking-[.18em] text-brand-blue">Catálogo</p><h3 class="mt-2 font-heading text-3xl font-extrabold text-slate-950">Productos más presentables.</h3><div class="mt-6 overflow-hidden rounded-[26px] border border-slate-200"><div class="grid grid-cols-12 bg-slate-50 px-5 py-4 text-xs font-extrabold uppercase tracking-[.16em] text-slate-400"><div class="col-span-5">Producto</div><div class="col-span-2">Precio</div><div class="col-span-2">Stock</div><div class="col-span-3">Estado</div></div><template x-for="p in products" :key="p.name"><div class="grid grid-cols-12 items-center border-t border-slate-100 px-5 py-4 text-sm"><div class="col-span-5 flex items-center gap-4"><div class="grid h-12 w-12 place-items-center rounded-2xl bg-gradient-to-br from-emerald-50 to-blue-50 font-extrabold text-brand-navy" x-text="p.initial"></div><div><p class="font-bold text-slate-950" x-text="p.name"></p><p class="text-xs text-slate-400" x-text="p.sku"></p></div></div><div class="col-span-2 font-bold text-slate-700" x-text="p.price"></div><div class="col-span-2 text-slate-600" x-text="p.stock"></div><div class="col-span-3"><span class="inline-flex rounded-full px-3 py-1 text-xs font-extrabold" :class="p.statusClass" x-text="p.status"></span></div></div></template></div></div>
-
-            <div x-show="section==='operations'" x-cloak class="grid gap-6 lg:grid-cols-2"><div class="rounded-[30px] bg-white p-6 shadow-soft md:p-8"><p class="text-xs uppercase tracking-[.18em] text-brand-green">Flujo de pedidos</p><h3 class="mt-2 font-heading text-3xl font-extrabold text-slate-950">Desde la compra hasta el despacho.</h3><div class="mt-6 space-y-4"><template x-for="(step,index) in flow" :key="step.title"><div class="flex gap-4 rounded-[24px] border border-slate-200 bg-slate-50 p-4"><div class="grid h-12 w-12 place-items-center rounded-2xl bg-brand-navy text-lg font-extrabold text-white" x-text="index+1"></div><div><p class="font-heading text-lg font-extrabold text-slate-950" x-text="step.title"></p><p class="mt-1 text-sm leading-7 text-slate-500" x-text="step.text"></p></div></div></template></div></div><div class="rounded-[30px] bg-white p-6 shadow-soft md:p-8"><p class="text-xs uppercase tracking-[.18em] text-brand-blue">Pedidos recientes</p><h3 class="mt-2 font-heading text-3xl font-extrabold text-slate-950">Trazabilidad clara.</h3><div class="mt-6 space-y-3"><template x-for="o in orders" :key="o.id"><div class="rounded-[24px] border border-slate-200 bg-slate-50 p-4"><div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between"><div><p class="font-bold text-slate-950"><span x-text="o.id"></span> · <span x-text="o.customer"></span></p><p class="mt-1 text-sm text-slate-500" x-text="o.meta"></p></div><div class="flex flex-wrap items-center gap-2"><span class="rounded-full bg-white px-3 py-1 text-xs font-bold text-slate-600" x-text="o.payment"></span><span class="rounded-full px-3 py-1 text-xs font-extrabold" :class="o.badgeClass" x-text="o.status"></span></div></div></div></template></div></div></div>
-
-            <div x-show="section==='customers'" x-cloak class="rounded-[30px] bg-white p-6 shadow-soft md:p-8"><p class="text-xs uppercase tracking-[.18em] text-brand-blue">Clientes</p><h3 class="mt-2 font-heading text-3xl font-extrabold text-slate-950">Segmentación útil para vender mejor.</h3><div class="mt-6 grid gap-4 md:grid-cols-3"><template x-for="c in customers" :key="c.name"><div class="rounded-[24px] border border-slate-200 bg-slate-50 p-5"><div class="flex items-center gap-4"><div class="grid h-12 w-12 place-items-center rounded-2xl bg-white font-extrabold text-brand-navy shadow-sm" x-text="c.initials"></div><div><p class="font-heading text-lg font-extrabold text-slate-950" x-text="c.name"></p><p class="text-sm text-slate-400" x-text="c.type"></p></div></div><span class="mt-4 inline-flex rounded-full px-3 py-1 text-xs font-extrabold" :class="c.badgeClass" x-text="c.segment"></span><div class="mt-5 grid grid-cols-2 gap-3"><div class="rounded-2xl bg-white p-4"><p class="text-xs text-slate-400">Pedidos</p><p class="mt-1 font-extrabold text-slate-950" x-text="c.orders"></p></div><div class="rounded-2xl bg-white p-4"><p class="text-xs text-slate-400">Facturación demo</p><p class="mt-1 font-extrabold text-slate-950" x-text="c.total"></p></div></div></div></template></div></div>
-
-            <div x-show="section==='promotions'" x-cloak class="grid gap-6 md:grid-cols-3"><template x-for="p in promos" :key="p.code"><div class="rounded-[30px] bg-white p-6 shadow-soft"><div class="flex items-center justify-between"><span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-extrabold tracking-[.16em] text-slate-600" x-text="p.code"></span><div class="grid h-11 w-11 place-items-center rounded-2xl" :class="p.iconBg"><i :data-lucide="p.icon" class="h-5 w-5"></i></div></div><h3 class="mt-5 font-heading text-2xl font-extrabold text-slate-950" x-text="p.title"></h3><p class="mt-3 text-sm leading-7 text-slate-500" x-text="p.text"></p></div></template></div>
-
-            <div x-show="section==='payments'" x-cloak class="grid gap-6 lg:grid-cols-2"><template x-for="card in payShip" :key="card.title"><div class="rounded-[30px] bg-white p-6 shadow-soft md:p-8"><div class="flex items-center gap-4"><div class="grid h-14 w-14 place-items-center rounded-3xl" :class="card.iconWrap"><i :data-lucide="card.icon" class="h-6 w-6"></i></div><div><p class="text-xs uppercase tracking-[.18em]" :class="card.eyebrowClass" x-text="card.eyebrow"></p><h3 class="font-heading text-2xl font-extrabold text-slate-950" x-text="card.title"></h3></div></div><div class="mt-6 grid gap-3"><template x-for="item in card.items" :key="item"><div class="flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700"><i data-lucide="check-circle-2" class="h-5 w-5 text-emerald-600"></i><span x-text="item"></span></div></template></div></div></template></div>
-
-            <div x-show="section==='growth'" x-cloak class="rounded-[30px] bg-white p-6 shadow-soft md:p-8"><p class="text-xs uppercase tracking-[.18em] text-brand-blue">Crecimiento</p><h3 class="mt-2 font-heading text-3xl font-extrabold text-slate-950">La base ya queda lista para escalar.</h3><div class="mt-6 space-y-4"><template x-for="r in roadmap" :key="r.title"><div class="rounded-[24px] border border-slate-200 bg-slate-50 p-5"><div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between"><div><p class="text-xs font-extrabold uppercase tracking-[.18em]" :class="r.phaseClass" x-text="r.phase"></p><h4 class="mt-2 font-heading text-xl font-extrabold text-slate-950" x-text="r.title"></h4><p class="mt-2 text-sm leading-7 text-slate-500" x-text="r.text"></p></div><span class="inline-flex rounded-full px-4 py-2 text-xs font-extrabold" :class="r.badgeClass" x-text="r.badge"></span></div></div></template></div></div>
           </section>
+
+          <section x-show="section==='admin-promotions'" x-cloak>
+            <div class="flex flex-wrap items-center justify-between gap-3">
+              <div><p class="text-xs uppercase tracking-[.18em] text-brand-blue">Promociones</p><h3 class="mt-2 font-heading text-3xl font-extrabold text-slate-950">Descuentos y campañas.</h3></div>
+              <button @click="openPromoModal()" class="rounded-2xl bg-brand-navy px-5 py-3 text-sm font-extrabold text-white">Crear promoción</button>
+            </div>
+            <div class="mt-6 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+              <template x-for="p in promos" :key="p.code">
+                <div class="rounded-[30px] bg-white p-6 shadow-soft">
+                  <div class="flex items-center justify-between"><span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-extrabold tracking-[.16em] text-slate-600" x-text="p.code"></span><div class="grid h-11 w-11 place-items-center rounded-2xl" :class="p.iconBg"><i :data-lucide="p.icon" class="h-5 w-5"></i></div></div>
+                  <h3 class="mt-5 font-heading text-xl font-extrabold text-slate-950" x-text="p.title"></h3>
+                  <p class="mt-3 text-sm leading-7 text-slate-500" x-text="p.text"></p>
+                </div>
+              </template>
+            </div>
+          </section>
+
+          <template x-if="showPromoModal">
+            <div @click.self="closePromoModal()" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 p-4">
+              <div class="w-full max-w-md rounded-[30px] bg-white p-6 shadow-glow md:p-8">
+                <div class="flex items-center justify-between"><h3 class="font-heading text-2xl font-extrabold text-slate-950">Crear promoción</h3><button @click="closePromoModal()" class="grid h-9 w-9 place-items-center rounded-full bg-slate-100"><i data-lucide="x" class="h-4 w-4"></i></button></div>
+                <p class="mt-1 text-sm text-slate-400">Formulario de demostración · no guarda datos reales.</p>
+                <form @submit.prevent="submitPromo()" class="mt-6 grid gap-4">
+                  <label class="text-xs font-bold text-slate-500">Tipo
+                    <select x-model="newPromo.type" class="mt-1 w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm">
+                      <template x-for="p in promos" :key="p.title"><option x-text="p.title"></option></template>
+                    </select>
+                  </label>
+                  <label class="text-xs font-bold text-slate-500">Código<input x-model="newPromo.code" type="text" class="mt-1 w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm" placeholder="Ej: VERANO10" /></label>
+                  <label class="text-xs font-bold text-slate-500">Valor<input x-model="newPromo.value" type="text" class="mt-1 w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm" placeholder="Ej: 10% o $3.990" /></label>
+                  <div class="mt-2 flex justify-end gap-3">
+                    <button type="button" @click="closePromoModal()" class="rounded-2xl border border-slate-200 px-5 py-3 text-sm font-extrabold text-slate-600">Cancelar</button>
+                    <button type="submit" class="rounded-2xl bg-brand-navy px-5 py-3 text-sm font-extrabold text-white">Crear</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </template>
+
+          <section x-show="section==='admin-payments'" x-cloak class="grid gap-6 lg:grid-cols-2">
+            <div class="rounded-[30px] bg-white p-6 shadow-soft md:p-8">
+              <div class="flex items-center gap-4"><div class="grid h-14 w-14 place-items-center rounded-3xl bg-emerald-50 text-emerald-700"><i data-lucide="wallet-cards" class="h-6 w-6"></i></div><div><p class="text-xs uppercase tracking-[.18em] text-emerald-700">Pagos</p><h3 class="font-heading text-2xl font-extrabold text-slate-950">Estados de pago.</h3></div></div>
+              <div class="mt-6 flex flex-wrap gap-2"><template x-for="s in paymentStates" :key="s"><span class="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-bold text-slate-600" x-text="s"></span></template></div>
+              <div class="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-5 text-sm">
+                <div class="flex justify-between py-1"><span class="text-slate-400">Pedido</span><span class="font-bold" x-text="orders[0].id"></span></div>
+                <div class="flex justify-between py-1"><span class="text-slate-400">Total</span><span class="font-bold" x-text="formatCLP(orders[0].total)"></span></div>
+                <div class="flex justify-between py-1"><span class="text-slate-400">Estado</span><span class="font-bold" x-text="orders[0].paid"></span></div>
+                <div class="flex justify-between py-1"><span class="text-slate-400">Medio de pago</span><span class="font-bold">Webpay</span></div>
+              </div>
+              <p class="mt-4 inline-flex rounded-full bg-blue-50 px-3 py-1.5 text-xs font-extrabold text-brand-blue">Medio de pago configurable según integración</p>
+            </div>
+            <div class="rounded-[30px] bg-white p-6 shadow-soft md:p-8">
+              <div class="flex items-center gap-4"><div class="grid h-14 w-14 place-items-center rounded-3xl bg-blue-50 text-brand-blue"><i data-lucide="truck" class="h-6 w-6"></i></div><div><p class="text-xs uppercase tracking-[.18em] text-brand-blue">Despachos</p><h3 class="font-heading text-2xl font-extrabold text-slate-950">Métodos de entrega.</h3></div></div>
+              <div class="mt-6 space-y-3">
+                <template x-for="m in shippingMethods" :key="m.name"><div class="flex items-center justify-between rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700"><span x-text="m.name"></span><span class="font-bold" x-text="m.price===0 ? 'Gratis' : formatCLP(m.price)"></span></div></template>
+              </div>
+              <div class="mt-5 flex items-center gap-2 text-xs font-bold text-slate-400"><span>Pedido</span><i data-lucide="arrow-right" class="h-3 w-3"></i><span>Preparación</span><i data-lucide="arrow-right" class="h-3 w-3"></i><span>Despacho</span><i data-lucide="arrow-right" class="h-3 w-3"></i><span>Entregado</span></div>
+            </div>
+          </section>
+
+          <section x-show="section==='admin-settings'" x-cloak class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            <template x-for="card in settingsCards" :key="card.title">
+              <div class="rounded-[26px] border border-slate-200 bg-white p-6 shadow-soft">
+                <div class="grid h-11 w-11 place-items-center rounded-2xl bg-blue-50 text-brand-blue"><i :data-lucide="card.icon" class="h-5 w-5"></i></div>
+                <h4 class="mt-4 font-heading text-lg font-extrabold text-slate-950" x-text="card.title"></h4>
+                <ul class="mt-3 space-y-1.5 text-sm text-slate-500"><template x-for="it in card.items" :key="it"><li x-text="it"></li></template></ul>
+              </div>
+            </template>
+          </section>
+
+          <section x-show="section==='store-home'" x-cloak class="space-y-6">
+            <div class="overflow-hidden rounded-[32px] bg-[linear-gradient(135deg,#0E2E73_0%,#66B132_100%)] p-8 text-white shadow-glow md:p-12">
+              <h2 class="max-w-2xl font-heading text-3xl font-extrabold leading-tight md:text-5xl">Productos de limpieza profesional para tu hogar o empresa.</h2>
+              <button @click="go('store-catalog')" class="mt-6 rounded-2xl bg-brand-yellow px-5 py-3 text-sm font-extrabold text-slate-950">Ver catálogo</button>
+            </div>
+            <div class="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-6">
+              <template x-for="c in categories" :key="c.name">
+                <button @click="go('store-catalog')" class="rounded-[22px] border border-slate-200 bg-white p-4 text-center shadow-soft transition hover:-translate-y-0.5">
+                  <div class="mx-auto grid h-11 w-11 place-items-center rounded-2xl bg-emerald-50 text-emerald-700"><i :data-lucide="c.icon" class="h-5 w-5"></i></div>
+                  <p class="mt-2 text-xs font-bold text-slate-700" x-text="c.name"></p>
+                </button>
+              </template>
+            </div>
+            <div class="rounded-[30px] bg-white p-6 shadow-soft md:p-8">
+              <p class="text-xs uppercase tracking-[.18em] text-brand-blue">Destacados</p>
+              <h3 class="mt-2 font-heading text-2xl font-extrabold text-slate-950">Productos y ofertas.</h3>
+              <div class="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                <template x-for="p in catalogProducts.slice(0,4)" :key="p.name">
+                  <div class="rounded-[22px] border border-slate-200 p-4">
+                    <div class="grid h-24 place-items-center rounded-2xl bg-gradient-to-br from-emerald-50 to-blue-50 text-3xl font-extrabold text-brand-navy" x-text="p.image"></div>
+                    <p class="mt-3 text-sm font-bold text-slate-900" x-text="p.name"></p>
+                    <p class="text-sm font-extrabold text-slate-950" x-text="formatCLP(p.price)"></p>
+                    <button @click="addToCart(p.name,p.price,null,1)" class="mt-3 w-full rounded-xl bg-brand-navy py-2 text-xs font-extrabold text-white">Agregar al carrito</button>
+                  </div>
+                </template>
+              </div>
+            </div>
+            <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+              <template x-for="b in benefits" :key="b.title">
+                <div class="rounded-[22px] border border-slate-200 bg-white p-5 text-center shadow-soft"><div class="mx-auto grid h-11 w-11 place-items-center rounded-2xl bg-blue-50 text-brand-blue"><i :data-lucide="b.icon" class="h-5 w-5"></i></div><p class="mt-3 text-sm font-extrabold text-slate-900" x-text="b.title"></p><p class="mt-1 text-xs text-slate-500" x-text="b.text"></p></div>
+              </template>
+            </div>
+          </section>
+
+          <section x-show="section==='store-catalog'" x-cloak class="rounded-[30px] bg-white p-6 shadow-soft md:p-8">
+            <p class="text-xs uppercase tracking-[.18em] text-brand-blue">Catálogo</p>
+            <h3 class="mt-2 font-heading text-3xl font-extrabold text-slate-950">Todos los productos.</h3>
+            <div class="mt-5 flex flex-wrap gap-2">
+              <template x-for="c in catalogCategories" :key="c"><button @click="catalogCategoryFilter=c" class="rounded-full px-4 py-2 text-xs font-extrabold" :class="catalogCategoryFilter===c ? 'bg-brand-navy text-white' : 'bg-slate-100 text-slate-600'" x-text="c"></button></template>
+            </div>
+            <div class="mt-6 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+              <template x-for="p in filteredCatalog" :key="p.name">
+                <div class="rounded-[24px] border border-slate-200 p-5">
+                  <div class="grid h-28 place-items-center rounded-2xl bg-gradient-to-br from-emerald-50 to-blue-50 text-3xl font-extrabold text-brand-navy" x-text="p.image"></div>
+                  <p class="mt-4 font-bold text-slate-900" x-text="p.name"></p>
+                  <p class="text-sm text-amber-500" x-text="'★'.repeat(p.rating) + '☆'.repeat(5-p.rating)"></p>
+                  <p class="mt-1 text-lg font-extrabold text-slate-950" x-text="formatCLP(p.price)"></p>
+                  <button @click="addToCart(p.name,p.price,null,1)" class="mt-3 w-full rounded-xl bg-brand-navy py-2.5 text-xs font-extrabold text-white">Agregar al carrito</button>
+                </div>
+              </template>
+            </div>
+          </section>
+
+          <section x-show="section==='store-product'" x-cloak class="rounded-[30px] bg-white p-6 shadow-soft md:p-8">
+            <div class="grid gap-8 lg:grid-cols-2">
+              <div class="grid h-72 place-items-center rounded-[26px] bg-gradient-to-br from-emerald-50 to-blue-50 text-6xl font-extrabold text-brand-navy lg:h-full">D</div>
+              <div>
+                <p class="text-xs uppercase tracking-[.18em] text-brand-blue">Producto</p>
+                <h3 class="mt-2 font-heading text-3xl font-extrabold text-slate-950" x-text="productDetail.name"></h3>
+                <p class="mt-3 text-3xl font-extrabold text-slate-950" x-text="formatCLP(productDetail.variants[selectedVariant].price)"></p>
+                <p class="mt-1 text-sm text-slate-400" x-text="productDetail.variants[selectedVariant].stock + ' unidades disponibles · SKU ' + productDetail.variants[selectedVariant].sku"></p>
+
+                <p class="mt-6 text-xs font-extrabold uppercase tracking-[.16em] text-slate-400">Formato</p>
+                <div class="mt-2 flex flex-wrap gap-2">
+                  <template x-for="(v,idx) in productDetail.variants" :key="v.sku"><button @click="selectedVariant=idx" class="rounded-xl border px-4 py-2 text-sm font-bold" :class="selectedVariant===idx ? 'border-brand-navy bg-brand-navy text-white' : 'border-slate-200 text-slate-600'" x-text="v.label"></button></template>
+                </div>
+
+                <p class="mt-6 text-xs font-extrabold uppercase tracking-[.16em] text-slate-400">Cantidad</p>
+                <div class="mt-2 inline-flex items-center gap-4 rounded-xl border border-slate-200 px-4 py-2">
+                  <button @click="decQty()" class="text-lg font-extrabold text-slate-500">−</button>
+                  <span class="w-6 text-center font-bold" x-text="productQty"></span>
+                  <button @click="incQty()" class="text-lg font-extrabold text-slate-500">+</button>
+                </div>
+
+                <button @click="addToCart(productDetail.name, productDetail.variants[selectedVariant].price, productDetail.variants[selectedVariant].label, productQty)" class="mt-6 w-full rounded-2xl bg-brand-navy py-3.5 text-sm font-extrabold text-white sm:w-auto sm:px-8">Agregar al carrito</button>
+
+                <p class="mt-8 text-sm leading-7 text-slate-500" x-text="productDetail.description"></p>
+                <ul class="mt-4 space-y-1.5 text-sm text-slate-600"><template x-for="f in productDetail.features" :key="f"><li class="flex items-center gap-2"><i data-lucide="check-circle-2" class="h-4 w-4 text-emerald-600"></i><span x-text="f"></span></li></template></ul>
+                <p class="mt-4 flex items-center gap-2 text-xs font-bold text-slate-400"><i data-lucide="truck" class="h-4 w-4"></i><span x-text="productDetail.shippingNote"></span></p>
+              </div>
+            </div>
+          </section>
+
+          <section x-show="section==='store-cart'" x-cloak class="rounded-[30px] bg-white p-6 shadow-soft md:p-8">
+            <p class="text-xs uppercase tracking-[.18em] text-brand-blue">Carrito</p>
+            <h3 class="mt-2 font-heading text-3xl font-extrabold text-slate-950">Tu carrito.</h3>
+            <div x-show="cart.length===0" class="mt-8 rounded-2xl border border-dashed border-slate-200 p-10 text-center text-sm text-slate-400">
+              Tu carrito está vacío. <button @click="go('store-catalog')" class="font-bold text-brand-blue">Ir al catálogo</button>
+            </div>
+            <div x-show="cart.length>0" class="mt-6 space-y-3">
+              <template x-for="i in cart" :key="i.key">
+                <div class="flex items-center justify-between rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+                  <div><p class="text-sm font-bold text-slate-900" x-text="i.name + (i.variant ? ' · ' + i.variant : '')"></p><p class="text-xs text-slate-400" x-text="formatCLP(i.price) + ' c/u'"></p></div>
+                  <div class="flex items-center gap-3">
+                    <div class="flex items-center gap-2 rounded-xl border border-slate-200 px-2 py-1"><button @click="changeCartQty(i.key,-1)" class="px-1 font-extrabold text-slate-500">−</button><span class="w-5 text-center text-sm font-bold" x-text="i.qty"></span><button @click="changeCartQty(i.key,1)" class="px-1 font-extrabold text-slate-500">+</button></div>
+                    <p class="w-20 text-right text-sm font-extrabold text-slate-950" x-text="formatCLP(i.qty*i.price)"></p>
+                    <button @click="removeFromCart(i.key)" class="text-slate-300 hover:text-rose-500"><i data-lucide="x" class="h-4 w-4"></i></button>
+                  </div>
+                </div>
+              </template>
+              <div class="mt-6 space-y-2 rounded-2xl bg-slate-50 p-5 text-sm">
+                <div class="flex justify-between"><span class="text-slate-400">Subtotal</span><span class="font-bold" x-text="formatCLP(cartSubtotal)"></span></div>
+                <div class="flex justify-between"><span class="text-slate-400">Despacho</span><span class="font-bold" x-text="cartShipping===0 ? 'Gratis' : formatCLP(cartShipping)"></span></div>
+                <div class="flex justify-between border-t border-slate-200 pt-2 text-base"><span class="font-extrabold text-slate-950">Total</span><span class="font-extrabold text-slate-950" x-text="formatCLP(cartTotal)"></span></div>
+              </div>
+              <button @click="go('store-checkout')" class="w-full rounded-2xl bg-brand-navy py-3.5 text-sm font-extrabold text-white sm:w-auto sm:px-8">Ir al checkout</button>
+            </div>
+          </section>
+
+          <section x-show="section==='store-checkout'" x-cloak class="rounded-[30px] bg-white p-6 shadow-soft md:p-8">
+            <template x-if="orderConfirmed">
+              <div class="py-8 text-center">
+                <div class="mx-auto grid h-16 w-16 place-items-center rounded-full bg-emerald-100 text-emerald-700"><i data-lucide="check-circle-2" class="h-8 w-8"></i></div>
+                <h3 class="mt-5 font-heading text-3xl font-extrabold text-slate-950" x-text="'Pedido ' + confirmedOrderId + ' confirmado'"></h3>
+                <p class="mt-2 text-sm text-slate-500">Demostrativo · no se procesó ningún pago real.</p>
+                <button @click="restartCheckout(); go('store-home')" class="mt-6 rounded-2xl bg-brand-navy px-6 py-3 text-sm font-extrabold text-white">Volver al inicio</button>
+              </div>
+            </template>
+
+            <template x-if="!orderConfirmed && cart.length===0">
+              <div class="rounded-2xl border border-dashed border-slate-200 p-10 text-center text-sm text-slate-400">
+                Tu carrito está vacío. <button @click="go('store-catalog')" class="font-bold text-brand-blue">Ir al catálogo</button>
+              </div>
+            </template>
+
+            <template x-if="!orderConfirmed && cart.length>0">
+              <div>
+                <div class="flex flex-wrap items-center gap-2">
+                  <template x-for="(s,i) in checkoutSteps" :key="s">
+                    <span class="flex items-center gap-2 text-xs font-extrabold" :class="checkoutStep===i+1 ? 'text-brand-navy' : 'text-slate-300'"><span class="grid h-6 w-6 place-items-center rounded-full" :class="checkoutStep>i+1 ? 'bg-emerald-100 text-emerald-700' : (checkoutStep===i+1 ? 'bg-brand-navy text-white' : 'bg-slate-100 text-slate-400')" x-text="i+1"></span><span x-text="s"></span><i x-show="i<checkoutSteps.length-1" data-lucide="chevron-right" class="h-4 w-4 text-slate-300"></i></span>
+                  </template>
+                </div>
+
+                <div class="mt-8 grid gap-8 lg:grid-cols-[1fr_.7fr]">
+                  <div>
+                    <div x-show="checkoutStep===1" class="grid gap-4 sm:grid-cols-2">
+                      <label class="sm:col-span-2 text-xs font-bold text-slate-500">Nombre<input x-model="checkoutForm.name" type="text" class="mt-1 w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm" /></label>
+                      <label class="text-xs font-bold text-slate-500">Email<input x-model="checkoutForm.email" type="email" class="mt-1 w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm" /></label>
+                      <label class="text-xs font-bold text-slate-500">Teléfono<input x-model="checkoutForm.phone" type="text" class="mt-1 w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm" /></label>
+                    </div>
+                    <div x-show="checkoutStep===2" class="grid gap-4 sm:grid-cols-2">
+                      <label class="text-xs font-bold text-slate-500">Región<input x-model="checkoutForm.region" type="text" class="mt-1 w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm" placeholder="Valparaíso" /></label>
+                      <label class="text-xs font-bold text-slate-500">Comuna<input x-model="checkoutForm.comuna" type="text" class="mt-1 w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm" placeholder="Viña del Mar" /></label>
+                      <label class="sm:col-span-2 text-xs font-bold text-slate-500">Dirección<input x-model="checkoutForm.address" type="text" class="mt-1 w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm" /></label>
+                    </div>
+                    <div x-show="checkoutStep===3" class="space-y-3">
+                      <template x-for="m in shippingMethods" :key="m.name"><button type="button" @click="checkoutForm.shippingMethod=m.name" class="flex w-full items-center justify-between rounded-2xl border px-4 py-3 text-sm font-semibold" :class="checkoutForm.shippingMethod===m.name ? 'border-brand-navy bg-blue-50/50' : 'border-slate-200'"><span x-text="m.name"></span><span class="font-bold" x-text="m.price===0 ? 'Gratis' : formatCLP(m.price)"></span></button></template>
+                    </div>
+                    <div x-show="checkoutStep===4" class="space-y-3">
+                      <template x-for="m in ['Webpay','Mercado Pago','Transferencia bancaria']" :key="m"><button type="button" @click="checkoutForm.paymentMethod=m" class="flex w-full items-center gap-3 rounded-2xl border px-4 py-3 text-sm font-semibold" :class="checkoutForm.paymentMethod===m ? 'border-brand-navy bg-blue-50/50' : 'border-slate-200'"><i data-lucide="credit-card" class="h-4 w-4"></i><span x-text="m"></span></button></template>
+                      <p class="rounded-full bg-blue-50 px-3 py-1.5 text-xs font-extrabold text-brand-blue inline-flex">Medio de pago configurable según integración</p>
+                    </div>
+                    <div class="mt-8 flex justify-between">
+                      <button type="button" @click="prevCheckoutStep()" x-show="checkoutStep>1" class="rounded-2xl border border-slate-200 px-5 py-3 text-sm font-extrabold text-slate-600">Atrás</button>
+                      <span x-show="checkoutStep===1"></span>
+                      <button type="button" @click="nextCheckoutStep()" class="rounded-2xl bg-brand-navy px-6 py-3 text-sm font-extrabold text-white" x-text="checkoutStep<4 ? 'Siguiente' : 'Confirmar pedido'"></button>
+                    </div>
+                  </div>
+                  <div class="h-fit rounded-2xl bg-slate-50 p-5">
+                    <p class="text-xs font-extrabold uppercase tracking-[.16em] text-slate-400">Resumen</p>
+                    <div class="mt-3 space-y-2">
+                      <template x-for="i in cart" :key="i.key"><div class="flex justify-between text-sm"><span x-text="i.qty + '× ' + i.name"></span><span class="font-bold" x-text="formatCLP(i.qty*i.price)"></span></div></template>
+                    </div>
+                    <div class="mt-3 space-y-1 border-t border-slate-200 pt-3 text-sm">
+                      <div class="flex justify-between"><span class="text-slate-400">Subtotal</span><span x-text="formatCLP(cartSubtotal)"></span></div>
+                      <div class="flex justify-between"><span class="text-slate-400">Despacho</span><span x-text="cartShipping===0 ? 'Gratis' : formatCLP(cartShipping)"></span></div>
+                      <div class="flex justify-between text-base font-extrabold text-slate-950"><span>Total</span><span x-text="formatCLP(cartTotal)"></span></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </template>
+          </section>
+
+          <section x-show="section==='growth-integrations'" x-cloak class="space-y-6">
+            <div class="rounded-[30px] bg-white p-6 shadow-soft md:p-8">
+              <p class="text-xs uppercase tracking-[.18em] text-violet-700">Crecimiento</p>
+              <h3 class="mt-2 font-heading text-3xl font-extrabold text-slate-950">Esto podremos conectar cuando tu negocio lo necesite.</h3>
+              <div class="mt-5 flex flex-wrap gap-2">
+                <template x-for="[key, meta] in Object.entries(statusMeta)" :key="key"><span class="rounded-full px-3 py-1.5 text-xs font-extrabold" :class="meta.class" x-text="meta.label"></span></template>
+              </div>
+            </div>
+            <div class="grid gap-4 lg:grid-cols-2">
+              <template x-for="grp in integrationGroups" :key="grp.title">
+                <div class="rounded-[26px] border border-slate-200 bg-white p-6 shadow-soft">
+                  <div class="flex items-center gap-3"><div class="grid h-10 w-10 place-items-center rounded-2xl bg-slate-100 text-slate-600"><i :data-lucide="grp.icon" class="h-5 w-5"></i></div><h4 class="font-heading text-lg font-extrabold text-slate-950" x-text="grp.title"></h4></div>
+                  <div class="mt-4 space-y-3">
+                    <template x-for="it in grp.items" :key="it.name">
+                      <div class="rounded-2xl bg-slate-50 p-4">
+                        <div class="flex flex-wrap items-center justify-between gap-2"><p class="text-sm font-bold text-slate-900" x-text="it.name"></p><span class="rounded-full px-2.5 py-1 text-[11px] font-extrabold" :class="statusMeta[it.status].class" x-text="statusMeta[it.status].label"></span></div>
+                        <p class="mt-1 text-xs leading-6 text-slate-500" x-text="it.text"></p>
+                      </div>
+                    </template>
+                  </div>
+                </div>
+              </template>
+            </div>
+          </section>
+
+          <section x-show="section==='growth-roadmap'" x-cloak class="space-y-6">
+            <div class="rounded-[30px] bg-white p-6 shadow-soft md:p-8">
+              <p class="text-xs uppercase tracking-[.18em] text-brand-blue">Roadmap</p>
+              <h3 class="mt-2 font-heading text-3xl font-extrabold text-slate-950">Tu e-commerce está diseñado para crecer contigo.</h3>
+              <div class="mt-6 space-y-4">
+                <template x-for="r in roadmapStages" :key="r.phase">
+                  <div class="rounded-[24px] border border-slate-200 bg-slate-50 p-5">
+                    <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                      <div><h4 class="font-heading text-xl font-extrabold text-slate-950" x-text="r.phase"></h4><div class="mt-2 flex flex-wrap gap-2"><template x-for="it in r.items" :key="it"><span class="rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-600" x-text="it"></span></template></div></div>
+                      <span class="inline-flex shrink-0 rounded-full px-4 py-2 text-xs font-extrabold" :class="r.badgeClass" x-text="r.badge"></span>
+                    </div>
+                  </div>
+                </template>
+              </div>
+            </div>
+            <div class="rounded-[30px] bg-[linear-gradient(135deg,#0E2E73_0%,#0E54B7_62%,#66B132_100%)] p-8 text-center text-white shadow-glow md:p-10">
+              <p class="mx-auto max-w-2xl text-lg font-extrabold leading-8 md:text-xl">No tendrás que rehacer tu e-commerce cada vez que quieras agregar una nueva capacidad.</p>
+            </div>
+          </section>
+
         </div>
       </main>
     </div>
   </div>
-<script>
-function app(){return{open:false,section:'overview',nav:[{id:'overview',name:'Visión general',sub:'Qué incluye',icon:'layout-dashboard'},{id:'catalog',name:'Catálogo',sub:'Productos y variantes',icon:'package-open'},{id:'operations',name:'Pedidos',sub:'Flujo operacional',icon:'shopping-bag'},{id:'customers',name:'Clientes',sub:'Segmentación',icon:'users'},{id:'promotions',name:'Promociones',sub:'Descuentos y campañas',icon:'badge-percent'},{id:'payments',name:'Pagos y envíos',sub:'Checkout y logística',icon:'credit-card'},{id:'growth',name:'Crecimiento',sub:'Escalabilidad',icon:'rocket'}],metrics:[{label:'Módulos principales',value:'7',note:'ventas + operación',icon:'layers-3',color:'bg-blue-50 text-brand-blue'},{label:'Gestión de stock',value:'Automática',note:'por producto y variante',icon:'boxes',color:'bg-emerald-50 text-emerald-700'},{label:'Promociones',value:'Flexibles',note:'cupones y reglas',icon:'tickets',color:'bg-amber-50 text-amber-700'},{label:'Preparada para crecer',value:'Sí',note:'integraciones futuras',icon:'trending-up',color:'bg-violet-50 text-violet-700'}],features:[{title:'Productos',icon:'package',text:'Crear y editar el catálogo con imágenes, variantes, precios, categorías y colecciones.'},{title:'Inventario',icon:'boxes',text:'Stock visible, reservas, productos con bajo inventario y mejor orden operativo.'},{title:'Pedidos',icon:'clipboard-list',text:'Seguimiento completo desde la compra hasta el despacho.'},{title:'Clientes',icon:'contact-round',text:'Historial, datos y segmentación comercial para futuras campañas.'},{title:'Promociones',icon:'badge-percent',text:'Códigos, descuentos automáticos y reglas promocionales.'},{title:'Escalabilidad',icon:'waypoints',text:'Base lista para sumar ERP, facturación, automatizaciones o canales B2B.'}],products:[{initial:'M',name:'Limpiador Multiuso',sku:'SKU SL-MU-01',price:'$6.990',stock:'86 u.',status:'Publicado',statusClass:'bg-emerald-100 text-emerald-700'},{initial:'D',name:'Detergente Concentrado',sku:'SKU SL-DC-02',price:'$9.490',stock:'34 u.',status:'Publicado',statusClass:'bg-emerald-100 text-emerald-700'},{initial:'P',name:'Pack Limpieza Hogar',sku:'SKU SL-PK-03',price:'$21.990',stock:'18 u.',status:'Oferta',statusClass:'bg-amber-100 text-amber-700'},{initial:'A',name:'Aromatizante Frescura',sku:'SKU SL-AF-04',price:'$4.990',stock:'52 u.',status:'Borrador',statusClass:'bg-slate-100 text-slate-600'}],flow:[{title:'Checkout',text:'El cliente ve el carrito, selecciona envío y completa su compra.'},{title:'Pago',text:'La plataforma registra el estado del pago y se puede integrar con pasarelas externas.'},{title:'Preparación',text:'Se procesa el pedido y se reserva inventario.'},{title:'Despacho',text:'Se asigna el método de envío o retiro.'},{title:'Cierre',text:'Pedido completado con trazabilidad para cliente y administrador.'}],orders:[{id:'#SL-1042',customer:'María González',meta:'2 productos · total $24.970',payment:'Webpay',status:'Pagado',badgeClass:'bg-emerald-100 text-emerald-700'},{id:'#SL-1041',customer:'Comercial Norte SpA',meta:'6 productos · total $78.450',payment:'Transferencia',status:'Preparando',badgeClass:'bg-blue-100 text-brand-blue'},{id:'#SL-1040',customer:'Ignacio Pérez',meta:'1 producto · total $16.980',payment:'Webpay',status:'Despacho',badgeClass:'bg-amber-100 text-amber-700'}],customers:[{initials:'MG',name:'María González',type:'Cliente frecuente',segment:'Frecuente',orders:'7',total:'$154k',badgeClass:'bg-emerald-100 text-emerald-700'},{initials:'CN',name:'Comercial Norte SpA',type:'Empresa',segment:'B2B',orders:'12',total:'$890k',badgeClass:'bg-blue-100 text-brand-blue'},{initials:'IP',name:'Ignacio Pérez',type:'Nuevo cliente',segment:'Nuevo',orders:'1',total:'$17k',badgeClass:'bg-slate-100 text-slate-600'}],promos:[{code:'BIENVENIDA10',title:'10% primera compra',text:'Captación de nuevos clientes con una oferta simple y clara.',icon:'sparkles',iconBg:'bg-amber-50 text-amber-700'},{code:'PACKHOGAR',title:'Oferta por pack',text:'Promoción ideal para subir ticket promedio y mover combos.',icon:'package-plus',iconBg:'bg-blue-50 text-brand-blue'},{code:'ENVIO0',title:'Despacho promocional',text:'Beneficio para compras sobre cierto monto o campañas especiales.',icon:'truck',iconBg:'bg-emerald-50 text-emerald-700'}],payShip:[{eyebrow:'Pagos',eyebrowClass:'text-emerald-700',title:'Estructura preparada para pasarela.',icon:'wallet-cards',iconWrap:'bg-emerald-50 text-emerald-700',items:['Estados de pago claros.','Preparado para conectar pasarelas externas.','Checkout más profesional y confiable.']},{eyebrow:'Despacho',eyebrowClass:'text-brand-blue',title:'Operación logística clara.',icon:'truck',iconWrap:'bg-blue-50 text-brand-blue',items:['Métodos de envío configurables.','Preparación y marcado de pedidos enviados.','Base lista para futuras integraciones logísticas.']}],roadmap:[{phase:'Base actual',phaseClass:'text-emerald-700',title:'E-commerce completo',text:'Catálogo, inventario, pedidos, clientes, promociones y administración.',badge:'Incluido',badgeClass:'bg-emerald-100 text-emerald-700'},{phase:'Fase futura',phaseClass:'text-brand-blue',title:'Automatizaciones y CRM',text:'WhatsApp, recuperación de carrito y seguimiento post-compra.',badge:'Opcional',badgeClass:'bg-blue-100 text-brand-blue'},{phase:'Fase futura',phaseClass:'text-brand-blue',title:'Facturación / ERP',text:'Integraciones con herramientas externas según proveedor y necesidad.',badge:'Opcional',badgeClass:'bg-blue-100 text-brand-blue'},{phase:'Fase futura',phaseClass:'text-brand-blue',title:'Canales B2B',text:'Clientes empresa, listas de precios y venta por segmentos.',badge:'Opcional',badgeClass:'bg-blue-100 text-brand-blue'}],get title(){const current=this.nav.find(i=>i.id===this.section); return current?current.name:'Sales Room';}}}
-document.addEventListener('alpine:init',()=>requestAnimationFrame(()=>lucide.createIcons()));
-window.addEventListener('load',()=>{lucide.createIcons(); new Chart(document.getElementById('salesChart'),{type:'line',data:{labels:['Semana 1','Semana 2','Semana 3','Semana 4','Semana 5','Semana 6'],datasets:[{label:'Pedidos demo',data:[12,18,26,29,36,44],tension:.35,borderColor:'#0E54B7',backgroundColor:'rgba(14,84,183,.10)',borderWidth:3,fill:true,pointRadius:4,pointBackgroundColor:'#FFD62E',pointBorderColor:'#0E54B7'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{color:'#64748B'}},y:{grid:{color:'rgba(148,163,184,.15)'},ticks:{color:'#64748B'}}}}});});
-</script>
+
+  <div x-show="cartOpen" x-cloak class="fixed inset-0 z-50">
+    <div @click="cartOpen=false" class="absolute inset-0 bg-slate-950/40"></div>
+    <div class="absolute right-0 top-0 flex h-full w-full max-w-md flex-col bg-white p-6 shadow-glow">
+      <div class="flex items-center justify-between"><h3 class="font-heading text-xl font-extrabold text-slate-950">Tu carrito</h3><button @click="cartOpen=false" class="grid h-9 w-9 place-items-center rounded-full bg-slate-100"><i data-lucide="x" class="h-4 w-4"></i></button></div>
+      <div class="mt-6 flex-1 space-y-3 overflow-y-auto">
+        <p x-show="cart.length===0" class="text-sm text-slate-400">Tu carrito está vacío.</p>
+        <template x-for="i in cart" :key="i.key">
+          <div class="flex items-center justify-between rounded-2xl border border-slate-200 px-4 py-3"><div><p class="text-sm font-bold text-slate-900" x-text="i.name + (i.variant ? ' · ' + i.variant : '')"></p><p class="text-xs text-slate-400" x-text="i.qty + ' × ' + formatCLP(i.price)"></p></div><button @click="removeFromCart(i.key)" class="text-slate-300 hover:text-rose-500"><i data-lucide="x" class="h-4 w-4"></i></button></div>
+        </template>
+      </div>
+      <div class="mt-4 space-y-3 border-t border-slate-200 pt-4">
+        <div class="flex justify-between text-base font-extrabold text-slate-950"><span>Total</span><span x-text="formatCLP(cartTotal)"></span></div>
+        <button @click="cartOpen=false; go('store-cart')" class="w-full rounded-2xl bg-brand-navy py-3 text-sm font-extrabold text-white">Ver carrito</button>
+      </div>
+    </div>
+  </div>
+
+  <div x-show="toastVisible" x-cloak x-transition class="fixed bottom-6 left-1/2 z-[60] -translate-x-1/2 rounded-2xl bg-slate-950 px-5 py-3 text-sm font-bold text-white shadow-glow" x-text="toastMessage"></div>
+
 </body>
 </html>
